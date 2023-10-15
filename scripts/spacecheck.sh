@@ -3,8 +3,8 @@
 #-------------------------------------------#
 #  Trabalho realizado por:                  #
 #                                           #
-#  Danilo Micael Gregório Silva    n113384  #
-#  Tomás Santos Fernandos          n______  #
+#  Danilo Micael Gregório Silva   n 113384  #
+#  Tomás Santos Fernandos         n 112981  #
 #-------------------------------------------#
 
 
@@ -12,30 +12,54 @@
 
 # Funções a serem usadas no script:
 
+# Verificar se o argumento existe como ficheiro ou diretório             --> Adicionei esta func
+function exists() {
+	if [ -e "$1" ]; then
+		return 1 # 1 se o diretório ou ficheiro existe
+	else
+		return 0 # 0 se o diretório ou ficheiro não existe
+	fi
+}
+
+
+# Verificar se o argumento é um ficheiro válido              		 --> Adicionei esta func
+function is_file() {
+	if [ -f "$1" ]; then
+		return 1 # 1 se é ficheiro 
+	else
+		return 0 # 0 se não é ficheiro 
+	fi
+}
+
+
+# Verificar se o argumento é um diretório válido
 function is_dir() {
 	if [ -d "$1" ]; then
-		return 0 # o diretório existe
+		return 1 # 1 se é diretório 
 	else
-		return 1 # o diretório não existe
+		return 0 # 0 se não é diretório 
 	fi
 }
 
 
+# Verificar se o argumento é uma data válida
 function is_date() {
-	if date -d "$1" &>/dev/null; then # ao usar &>/dev/null são redirecionados
-					  # os erros para não serem exibidos
-		return 0 # data válida
+	if date -d "$1" &>/dev/null; then # ao usar &>/dev/null os erros 
+ 					  # são redirecionados para não 
+					  # erem exibidos
+		return 1 # 1 se é uma data válida					 
 	else
-		return 1 # data inválida
+		return 0 # 0 se é uma data inválida
 	fi
 }
 
 
+# Veriificar se o argumento é inteiro >=0
 function is_integer_positive() {
 	if [[ $1 =~ ^[0-9]+$ ]]; then
-		return 0 # é inteiro positivo (inclui 0)
+		return 1 # 1 se é inteiro positivo (inclui 0)
 	else
-		return 1 # não é inteiro positivo
+		return 0 # se não é inteiro positivo
 	fi
 }
 
@@ -43,41 +67,42 @@ function is_integer_positive() {
 #------------------------------------------------------------------------------#
 
 
-# Primeiro passo: armazenar todos os argumentos passados ao executar o script
+# Passo 1: armazenar todos os argumentos passados ao executar o script
 
-# Opções possíveis de serem fornecidas ao executar o script:
+# Opções possíveis de serem fornecidas como argumento para definir a seleção 
+# de ficheiros desejados ao executar o script:
 
-option_n=false # nome para seleção dos ficheiros
+option_n=false # expressão regular para filtrar nome dos ficheiros
 option_d=false # data máxima de modificação dos ficheiros
 option_s=false # tamanho mínimo do ficheiro
-option_r=false # ordenar por ordem inversa (tamanho)
+option_r=false # ordenar por ordem inversa (ou seja, pela ordem correta do tamanho)
 option_a=false # ordenar por nome
-option_l=false # limitar número de linhas da tabela
+option_l=false # limitar o número de linhas da tabela
 
 
-# Valores correspondestes às opções fornecidas:
+# Valores passado pelo user correspondentes às opções fornecidas:
 
-file_pattern="" # opção -n
-date=""         # opção -d
-size=""         # opção -s
-limit=""        # opção -l
-directories=()  # diretoria(s) a serem monitorizadas
+file_pattern="" # opção -n (variável)
+date=""         # opção -d (variável)
+size=""         # opção -s (variável)
+limit=""        # opção -l (variável)
+directories=()  # diretoria(s) a serem monitorizadas (array)
 
 
 # Processamento dos argumentos:
 
-# é usado um ciclo while para percorrer todos os argumentos: o argumento que 
-# está a ser analisado é $1 e a cada iteração o comando 'shift' desloca a 
+# É usado um ciclo while para percorrer todos os argumentos: o argumento que 
+# está a ser analisado é '$1', e a cada iteração o comando 'shift' desloca a     ### --> O arg que está a ser analisado não é o $2?
 # linha de argumentos para que o próximo seja o novo $1 até que o número de
-# argumentos restantes seja 0
+# argumentos restantes (dado pelo comando '$#') seja 0
 
-while [[ $# -gt 0 ]]; do
+while [[ $# -gt 0 ]]; do  # '-gt 0' -> 'greater than' 0
 	
 	case "$1" in
 		-n)
 			option_n=true
 			
-			# necessário testar o $2
+			# necessário testar o $2     		### --> testar?
 			file_pattern="$2"
 			shift
 			;;
@@ -86,10 +111,10 @@ while [[ $# -gt 0 ]]; do
 			
 			# verificar se $2 é uma data
 			if is_date "$2"; then
-				echo "data válida"
+				echo "data válida"		### --> Remover esta mensagem?
 				date="$2"
 			else
-				echo "data inválida"
+				echo "E: data inválida."
 			fi
 			
 			shift
@@ -97,11 +122,11 @@ while [[ $# -gt 0 ]]; do
 		-s)
 			option_s=true
 			
-			# verificar se $2 é número inteiro positivo (tamanho min)
+			# verificar se $2 (tamanho mínimo do ficheiro) é número inteiro positivo 
 			if is_integer_positive "$2"; then
 				size="$2"
 			else
-				echo "o número introduzido para size não é >= 0"
+				echo "E: O número introduzido para size não é >= 0."
 			fi
 			
 			shift
@@ -115,11 +140,11 @@ while [[ $# -gt 0 ]]; do
 		-l)
 			option_l=true
 			
-			# verificar se $2 é número inteiro positivo maior que 0 (n linhas)
+			# verificar se $2 (n de linhas) é número inteiro positivo E maior que 0 
 			if is_integer_positive "$2" && [ "$2" -gt 0 ]; then
 				limit="$2"
 			else
-				echo "o número introduzido para limit não é > 0"
+				echo "E: O número introduzido tem de ser > 0"
 			fi
 			
 			shift
@@ -128,15 +153,16 @@ while [[ $# -gt 0 ]]; do
 			if is_dir "$1"; then
 				directories+=("$1")
 			else
-				echo "diretório inválido"
+				echo "E: Diretório inválido"
 			fi
 			;;
 	esac
-	shift
+	shift ### --> Este shift não pode estar dentro de '*)'? Pq assim vai ser executado na mesma
 done
 
-# as seguintes linhas são usadas apenas para testar se os argumentos foram armazenados
-# tirar posteriormente **
+
+# As linhas seguintes servem para testar se os argumentos foram armazenados
+# !! tirar posteriormente !!
 
 if [ "$option_n" = true ]; then
 	echo "option_n -> true"
