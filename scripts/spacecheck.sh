@@ -12,7 +12,7 @@
 
 # Funções a serem usadas no script:
 
-# Verificar se o argumento existe como ficheiro ou diretório             --> Adicionei esta func
+# Verificar se o argumento existe como ficheiro ou diretório             
 function exists() {
 	if [ -e "$1" ]; then
 		return 0 # 0 se o diretório ou ficheiro existe
@@ -22,7 +22,7 @@ function exists() {
 }
 
 
-# Verificar se o argumento é um ficheiro válido              		 --> Adicionei esta func
+# Verificar se o argumento é um ficheiro válido              		 
 function is_file() {
 	if [ -f "$1" ]; then
 		return 0 # 0 se é ficheiro 
@@ -92,7 +92,7 @@ directories=()  # diretoria(s) a serem monitorizadas (array)
 # Processamento dos argumentos:
 
 # É usado um ciclo while para percorrer todos os argumentos: o argumento que 
-# está a ser analisado é '$1', e a cada iteração o comando 'shift' desloca a     ### --> O arg que está a ser analisado não é o $2?
+# está a ser analisado é '$1', e a cada iteração o comando 'shift' desloca a     
 # linha de argumentos para que o próximo seja o novo $1 até que o número de
 # argumentos restantes (dado pelo comando '$#') seja 0
 
@@ -102,7 +102,7 @@ while [[ $# -gt 0 ]]; do  # '-gt 0' -> 'greater than' 0
 		-n)
 			option_n=true
 			
-			# necessário testar o $2     		### --> testar?
+			# necessário testar o $2     		
 			file_pattern="$2"
 			shift
 			;;
@@ -111,7 +111,7 @@ while [[ $# -gt 0 ]]; do  # '-gt 0' -> 'greater than' 0
 			
 			# verificar se $2 é uma data
 			if is_date "$2"; then
-				echo "data válida"		### --> Remover esta mensagem?
+				echo "data válida"		
 				date="$2"
 			else
 				echo "E: data inválida."
@@ -157,7 +157,7 @@ while [[ $# -gt 0 ]]; do  # '-gt 0' -> 'greater than' 0
 			fi
 			;;
 	esac
-	shift ### --> Este shift não pode estar dentro de '*)'? Pq assim vai ser executado na mesma
+	shift 
 done
 
 
