@@ -15,9 +15,9 @@
 # Verificar se o argumento existe como ficheiro ou diretório             --> Adicionei esta func
 function exists() {
 	if [ -e "$1" ]; then
-		return 1 # 1 se o diretório ou ficheiro existe
+		return 0 # 0 se o diretório ou ficheiro existe
 	else
-		return 0 # 0 se o diretório ou ficheiro não existe
+		return 1 # 1 se o diretório ou ficheiro não existe
 	fi
 }
 
@@ -25,9 +25,9 @@ function exists() {
 # Verificar se o argumento é um ficheiro válido              		 --> Adicionei esta func
 function is_file() {
 	if [ -f "$1" ]; then
-		return 1 # 1 se é ficheiro 
+		return 0 # 0 se é ficheiro 
 	else
-		return 0 # 0 se não é ficheiro 
+		return 1 # 1 se não é ficheiro 
 	fi
 }
 
@@ -35,9 +35,9 @@ function is_file() {
 # Verificar se o argumento é um diretório válido
 function is_dir() {
 	if [ -d "$1" ]; then
-		return 1 # 1 se é diretório 
+		return 0 # 0 se é diretório 
 	else
-		return 0 # 0 se não é diretório 
+		return 1 # 1 se não é diretório 
 	fi
 }
 
@@ -47,9 +47,9 @@ function is_date() {
 	if date -d "$1" &>/dev/null; then # ao usar &>/dev/null os erros 
  					  # são redirecionados para não 
 					  # erem exibidos
-		return 1 # 1 se é uma data válida					 
+		return 0 # 0 se é uma data válida					 
 	else
-		return 0 # 0 se é uma data inválida
+		return 1 # 1 se é uma data inválida
 	fi
 }
 
@@ -57,9 +57,9 @@ function is_date() {
 # Veriificar se o argumento é inteiro >=0
 function is_integer_positive() {
 	if [[ $1 =~ ^[0-9]+$ ]]; then
-		return 1 # 1 se é inteiro positivo (inclui 0)
+		return 0 # 0 se é inteiro positivo (inclui 0)
 	else
-		return 0 # se não é inteiro positivo
+		return 1 # 1 se não é inteiro positivo
 	fi
 }
 
