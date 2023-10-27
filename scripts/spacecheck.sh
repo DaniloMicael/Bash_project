@@ -336,7 +336,7 @@ done
 
 
 # comando que nos dá o tamanho dos ficheiros (coluna 1):
-# find sop | grep ".txt" | xargs du -b
+# find sop | grep ".txt" | xargs du -b  | cut -f1
 
 
 
