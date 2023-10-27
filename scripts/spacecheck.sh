@@ -178,6 +178,24 @@ function is_integer_positive() {
 	fi
 }
 
+: << 'END'
+
+function calculate_output() {
+
+	dir="$1"
+	pattern="$2"
+
+	# find para encontrar todos os diretórios e subdiretórios (subdir é cada diretório encontrado no find, pelo que entendi)
+	find "$dir" -type d | while read -r subdir; do
+		# segundo find para procurar os ficheiros com um certo pattern e de seguida é executado du retornando o size dos ficheiros e tentei fazer a soma com awk mas não funcionou (supostamente $1 é o tamanho de cada file e devia fazer a soma naquele subdiretório e printar no fim)
+    		size=$(find "$subdir" | grep "$pattern" | xargs du -b  | cut -f1 | awk '{s+=$1} END {print s}')
+    		# Imprima o tamanho e o subdiretório
+    		echo "$size $subdir"
+	done
+}
+
+END
+
 
 
 #------------------------------------------------------------------------------#
@@ -328,6 +346,16 @@ for dir in "${directories[@]}"; do
 done						
 
 
+
+: << 'END'
+
+for dir in "${directories[@]}"; do
+	if [ "$option_n" = true ]; then
+		calculate_output "$dir" "$file_pattern"
+	fi
+done
+
+END
 
 
 
