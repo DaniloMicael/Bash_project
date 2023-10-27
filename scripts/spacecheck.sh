@@ -10,19 +10,99 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------#
 # NOTAS A RETIRAR NO FIM DO TRABALHO:
 
-# Podemos assumir que a pasta vem no final das opções, mas não podemos assumir que é só uma pasta
+# Output:
 # O output deve de ser com espaços e não tabs
 # A ordem normal vem do menor para o maior
+# NA: verificar se o diretório tem permissão de leitura
+# Ordem: usar -r e -a ordena por ordem decrescente do nome
+# Contabilizamos o tamanho das sub-pastas e dos ficheiros dentro da pasta (ver fotos)
+
+# User Input:
+# Podemos assumir que a pasta vem no final das opções, mas não podemos assumir que é só uma pasta
 # Quando há um erro, um arg inválido, O VALOR RETORNO NÃO É ZERO, é diferente de zero, e não é obrigatório ter uma mensagem de erro
 
-# NA: verificar se o diretório tem permissão de leitura
-
+# Dicas:
 # Para a função regex podemos usar =~ para a maior parte das coisas
-# Não podemos assumira nada sobre a opção regular, ou seja, qualquer uma tem de ser validada 
+# Não podemos assumir nada sobre a opção regular, ou seja, qualquer uma tem de ser validada 
 
-# Ordem: usar -r e -a ordena por ordem decrescente do nome
+# Notas:
+# O script não deve de criar ficheiros!
 
+# Relatório:
 # No relatório: forma como organizámos a solução, não devemos colocar muito código, forma como validámos a solução, testesao código, etc
+
+# ---------------------------------------------------------------------------------------------------------------------------------------#
+
+: << 'END'
+
+	INFO COMANDOS ESSENCIAIS:
+
+    awk: O comando awk é uma linguagem de programação interpretada usada 
+	principalmente para processar e manipular texto. Ele lê arquivos de 
+	entrada linha por linha e permite que você aplique regras ou expressões 
+	para extrair e formatar dados.
+
+    bc: O bc é uma calculadora de precisão arbitrária no shell. Você pode 
+	usá-lo para realizar cálculos matemáticos com uma precisão precisa, 
+	manipular números decimais e até criar scripts simples para realizar 
+	cálculos.
+
+    cat: O comando cat é usado para concatenar e exibir o conteúdo de um 
+	ou mais arquivos de texto. Ele é frequentemente usado para visualizar 
+	o conteúdo de arquivos.
+
+    cut: O comando cut é usado para cortar (extrair) partes específicas 
+	de uma linha ou campo de texto em um arquivo. Ele é frequentemente 
+	usado com arquivos delimitados por espaços, vírgulas ou outros caracteres.
+
+    date: O comando date é usado para exibir a data e hora atual ou formatá-la 
+	de acordo com as preferências do usuário. É útil para automatizar tarefas 
+	relacionadas ao tempo.
+
+    du: O comando du é usado para calcular o espaço em disco usado por 
+	arquivos e diretórios. Ele exibe informações sobre o uso de espaço 
+	em disco em um formato legível pelo usuário.
+
+    find: O comando find é usado para buscar arquivos e diretórios em um 
+	sistema de arquivos com base em critérios específicos, como nome, 
+	data de modificação, tamanho, etc. É uma ferramenta poderosa para 
+	localizar arquivos.
+
+    getopts: Embora não seja um comando executável por conta própria, 
+	getopts é usado em scripts shell para analisar opções e argumentos 
+	passados para o script. Ele facilita o processamento de argumentos 
+	de linha de comando em scripts Bash.
+
+    grep: O comando grep é usado para procurar padrões de texto em arquivos. 
+	Ele permite que você filtre e imprima linhas de texto que correspondam a 
+	um padrão especificado.
+
+    head: O comando head é usado para exibir as primeiras linhas de um 
+	arquivo de texto. Por padrão, ele mostra as 10 primeiras linhas, mas 
+	você pode especificar um número diferente de linhas a serem exibidas.
+
+    ls: O comando ls é usado para listar os arquivos e diretórios em um 
+	diretório. Ele fornece informações sobre os arquivos, como nomes, 
+	permissões, tamanhos e datas de modificação.
+
+    printf: O comando printf é usado para formatar e imprimir texto na saída 
+	padrão. Ele permite criar saída formatada com base em especificações 
+	de formato, como em linguagens de programação.
+
+    sleep: O comando sleep é usado para pausar a execução de um script ou 
+	processo por um período específico, especificado em segundos, minutos 
+	ou outras unidades de tempo.
+
+    sort: O comando sort é usado para ordenar as linhas de um arquivo de 
+	texto. Você pode especificar diferentes critérios de ordenação, como 
+	ordem alfabética, numérica e reversa.
+
+    stat: O comando stat é usado para exibir informações detalhadas sobre 
+	um arquivo, como tamanho, data de modificação, permissões e outros atributos.
+
+END
+
+
 # ---------------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -32,11 +112,12 @@
 
 # Função para imprimir o cabeçalho
 function print_head() {
-	d1=$(date --rfc-3339=date | cut -d "-" -f1)$(date --rfc-3339=date | cut -d "-" -f2)$(date --rfc-3339=date | cut -d "-" -f3)
+	#$(date --rfc-3339=date | cut -d "-" -f1)$(date --rfc-3339=date | cut -d "-" -f2)$(date --rfc-3339=date | cut -d "-" -f3)
+	d1=$(date +%Y%m%d)
 	# O pipe 'date --rfc-3339=date | cut -d "-" -fx' permite extrair a parte que 
 	# interessa da data e dividi-la (cut) pelo delimitador "-". Depois ordena a data na forma YMD através de -f1, -f2, -f3
 
-	cabecalho="SIZE  NAME  $d1$d2$d3"
+	cabecalho="SIZE NAME $d1$d2$d3"
 	
 	for option in "$@" ; do
 		cabecalho="$cabecalho $option"
@@ -75,6 +156,7 @@ function is_dir() {
 }
 
 
+######## VER ESTA FUNÇÃO, ESTÁ ERRADA!
 # Verificar se o argumento é uma data válida
 function is_date() {
 	if date -d "$1" &>/dev/null; then # ao usar &>/dev/null os erros 
@@ -104,6 +186,17 @@ function is_integer_positive() {
 
 # Passo 1: armazenar todos os argumentos passados ao executar o script
 
+
+# Array associativo com os argumentos passados pelo utilizador para cada opção 
+declare -A vals
+vals["file_pattern"]=""
+vals["date"]=""
+vals["size"]="0"
+vals["limit"]=""
+vals["directories"]=()
+
+
+
 # Opções possíveis de serem fornecidas como argumento para definir a seleção 
 #de ficheiros desejados ao executar o script:
 
@@ -122,7 +215,6 @@ date=""         # opção -d (variável)
 size="0"        # opção -s (variável)
 limit=""        # opção -l (variável)
 directories=()  # diretoria(s) a serem monitorizadas (array)
-
 sort="-n -r"	# variável com as opções de ordenação default
 
 #----------------#
@@ -205,14 +297,35 @@ fi
 for dir in "${directories[@]}"; do
 
 	if [ "$option_l" = true ]; then
-		output=$(du -b "$dir" | sort $sort | awk -v min_size="$size" '$1 >= min_size' | head -n "$limit")
+		output=$(du -b "$dir" | sort $sort | awk -v min_size="$size" '	{
+																			if ($1 >= min_size) 
+																				print; 
+																			else {
+																				$1=0; 
+																				print;
+																			} 
+																	   	}' | head -n "$limit")
+																		# "sort $sort" Para dar sort de acordo com aquilo que o user quiser
+																		# head -n "$limit" limita o número de linhas
+
 	else
-		output=$(du -b "$dir" | sort $sort | awk -v min_size="$size" '$1 >= min_size')
+		output=$(du -b "$dir" | sort $sort | awk -v min_size="$size" '	{
+																			if ($1 >= min_size) 
+																				print; 
+																			else {
+																				$1=0; 
+																				print;
+																			} 
+																	   	}' )
+	# Nos comandos acima, usufruimos da liberdade que o comando 'awk' nos oferece para criar uma variável "min_size", cujo valor é o tamanho mínimo 	
+	#que o utilizador deseja usar para listar os diretórios. Em seguida, abrimos "{" para criar um pequeno script que compara o $1 (valor presente na
+	#1ª coluna de cada linha do tipo:"size	diretorio/diret/dir", ou seja, $1 contém o tamanho de cada diretório na lista de diretórios usada para este
+	#ciclo for) com o valor da variável 'min_size'. Se for maior ou igual, então nada se altera e apenas dá print à linha normalmente, mas se for menor
+	#do que o tamanho mínimo, então substitui a primeira coluna (size) por 0 e dá print à coluna.															
 	fi
 	
-	echo "$output" 						# "sort $sort" Para dar sort de acordo com aquilo que o user quiser
-done								# head -n "$limit" limita o número de linhas
-								# awk -v min_size="$size" para definir o tamanho mínimo
+	echo "$output" 			
+done						
 
 
 
@@ -222,14 +335,8 @@ done								# head -n "$limit" limita o número de linhas
 # este comando substitui o que temos em cima
 
 
-
-
-
-
-
-
-
-
+# comando que nos dá o tamanho dos ficheiros (coluna 1):
+# find sop | grep ".txt" | xargs du -b
 
 
 
