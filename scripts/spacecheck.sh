@@ -187,8 +187,12 @@ function print_output_with_pattern() {
 	
 	find "$dir" -type d | while read -r subdir; do
 		
-		files=$(find "$subdir" | grep "$pattern")
-		
+		if [ "$option_n" = true ]; then
+			files=$(find "$subdir" -type f | grep "$pattern")
+		else
+			files=$(find "$subdir" -type f)
+		fi
+
 		if [ -z "$files" ]; then # condição verdadeira se $files está vazio
 			size="0"
 		else
@@ -343,10 +347,8 @@ echo "---------------pattern testing--------------"
 echo ""
 
 for dir in "${directories[@]}"; do
-	if [ "$option_n" = true ]; then
-		print_output_with_pattern "$dir" "$file_pattern"
-	fi
-done
+	print_output_with_pattern "$dir" "$file_pattern"
+done 
 
 
 
