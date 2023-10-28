@@ -178,24 +178,26 @@ function is_integer_positive() {
 	fi
 }
 
-: << 'END'
 
-function calculate_output() {
-
+# printa o output caso haja um pattern a verificar
+function print_output_with_pattern() {
+	
 	dir="$1"
 	pattern="$2"
-
-	# find para encontrar todos os diretórios e subdiretórios (subdir é cada diretório encontrado no find, pelo que entendi)
+	
 	find "$dir" -type d | while read -r subdir; do
-		# segundo find para procurar os ficheiros com um certo pattern e de seguida é executado du retornando o size dos ficheiros e tentei fazer a soma com awk mas não funcionou (supostamente $1 é o tamanho de cada file e devia fazer a soma naquele subdiretório e printar no fim)
-    		size=$(find "$subdir" | grep "$pattern" | xargs du -b  | cut -f1 | awk '{s+=$1} END {print s}')
-    		# Imprima o tamanho e o subdiretório
-    		echo "$size $subdir"
+		
+		files=$(find "$subdir" | grep "$pattern")
+		
+		if [ -z "$files" ]; then # condição verdadeira se $files está vazio
+			size="0"
+		else
+			size=$(du -b $files | awk '{s+=$1} END {print s}') # o comando awk faz a soma da coluna ($1) linha a linha
+		fi
+		
+		echo "$size $subdir"
 	done
 }
-
-END
-
 
 
 #------------------------------------------------------------------------------#
@@ -203,17 +205,6 @@ END
 
 
 # Passo 1: armazenar todos os argumentos passados ao executar o script
-
-
-# Array associativo com os argumentos passados pelo utilizador para cada opção 
-declare -A vals
-vals["file_pattern"]=""
-vals["date"]=""
-vals["size"]="0"
-vals["limit"]=""
-vals["directories"]=()
-
-
 
 # Opções possíveis de serem fornecidas como argumento para definir a seleção 
 #de ficheiros desejados ao executar o script:
@@ -346,16 +337,17 @@ for dir in "${directories[@]}"; do
 done						
 
 
-
-: << 'END'
+echo ""
+echo ""
+echo "---------------pattern testing--------------"
+echo ""
 
 for dir in "${directories[@]}"; do
 	if [ "$option_n" = true ]; then
-		calculate_output "$dir" "$file_pattern"
+		print_output_with_pattern "$dir" "$file_pattern"
 	fi
 done
 
-END
 
 
 
@@ -364,7 +356,7 @@ END
 
 
 # comando que nos dá o tamanho dos ficheiros (coluna 1):
-# find sop | grep ".txt" | xargs du -b  | cut -f1
+# find testdir | grep ".txt" | xargs du -b  | cut -f1
 
 
 
