@@ -146,7 +146,7 @@ directories=()  # diretoria(s) a serem monitorizadas (array)
 sort="-n -r"	# variável com as opções de ordenação default
 
 
-# O comando 'getops' guarda as opções inseridas;
+# O comando 'getopts' guarda as opções inseridas;
 # Estas são especificadas na string abaixo '"n:d:s:ral:"';
 # As letras significam as opções disponíveis para o utilizador;
 # Os dois pontos a seguir a cada letra identificam as opções que necessitam de argumento;
