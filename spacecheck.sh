@@ -90,7 +90,7 @@ function print_output() {
 					#este é, então, igual a 0); se a opção "-d" não tiver sido usada, então filtramos apenas por tamanho mínimo
 					if [ "$option_d" = true ]; then
 					
-						fileModTime=$(stat "$file" -c %Y)	  # Obtemos a data da última modificação do file em segundos desde 01/01/1970
+						fileModTime=$(stat "$file" -c %Y)	        # Obtemos a data da última modificação do file em segundos desde 01/01/1970
 						userDateInSeconds=$(date --date="$date" +%s)	# Usamos $userDateInSeconds para conter a data que o user inseriu, transformada em segundos desde 01/01/1970
 
 						# Comparamo-la com a data inserida pelo user, também em segundos desde 01/01/1970 e, se for menor ou igual (data máxima da última modificação), 
