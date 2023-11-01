@@ -224,7 +224,7 @@ fi
 
 # Processamento do output
 
-# Imprimirr o cabeçalho
+# Imprimir o cabeçalho
 print_head "$@"
 
 # Para cada diretório, listar os tamanhos;
