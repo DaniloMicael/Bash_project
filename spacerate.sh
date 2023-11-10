@@ -103,23 +103,6 @@ done < <(tail -n +2 "${files[1]}")
 
 
 
-# --------------------------------------------#
-echo
-echo "Stored output of de first file:"
-for key in "${!firstOutput[@]}"; do
-    echo "${firstOutput[$key]} = $key"
-done | sort $sort
-
-echo
-echo "Stored output of de second file:"
-for key in "${!secondOutput[@]}"; do
-    echo "${secondOutput[$key]} = $key"
-done | sort $sort
-echo
-# --------------------------------------------#
-
-
-
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 
@@ -156,8 +139,6 @@ for keySecond in "${!secondOutput[@]}"; do
 done 
 
 
-
-
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
 # Processamento do output:
@@ -171,30 +152,3 @@ for key in "${!output[@]}"; do
 done | sort $sort
 
 
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------#
-# As linhas seguintes servem para testar se os argumentos foram armazenados
-# !! tirar posteriormente !!
-echo ""
-echo "-------------- Options --------------"
-echo ""
-
-
-if [ "$option_r" = true ]; then
-	echo "option_r -> true"
-else
-	echo "option_r -> false"
-fi
-
-if [ "$option_a" = true ]; then
-	echo "option_a -> true"
-else
-	echo "option_a -> false"
-fi
-
-echo "diretorios: ${directories[@]}"
-
-#-------------------------------------------------------------------------------------------------------------------------------------#
