@@ -85,6 +85,11 @@ function print_output() {
 				
 					file_size=$(stat -c "%s" "$file") # Obtemos o tamanho do ficheiro em bytes
 					
+					if [ $? -ne 0 ]; then # se o comando stat falhar é definido dir_size como NA e saímos do ciclo
+						dir_size="NA"
+						break
+					fi
+					
 					# Na seguinte estrutura condicional, caso a opção "-d" tenha sido selecionada, filtramos tanto por data como por tamanho mínimo (este último 
 					#está guardado na variável $size inicializada com 0 fora da função, e caso o user não tenha decidido passar um tamanho mínimo como argumento, 
 					#este é, então, igual a 0); se a opção "-d" não tiver sido usada, então filtramos apenas por tamanho mínimo
