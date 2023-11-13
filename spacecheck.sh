@@ -258,5 +258,5 @@ print_head "$@"
 for dir in "${directories[@]}"; do
 	print_output "$dir"
 done | sort $sort | if [ "$option_l" = true ]; then head -n "$limit" 2>/dev/null; else cat; fi
-
+echo ""
 
