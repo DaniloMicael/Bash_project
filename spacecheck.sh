@@ -65,7 +65,20 @@ function print_output() {
 	#no caso de não ser possível lê-lo, e, por fim, usando um pipe percorremos todos os subdiretórios obtidos com o comando "find"
 	find "$dir" -type d 2>/dev/null | while read -r subdir; do
 		# Verificamos se o $subdir tem permissão para ser lido
-		if [ -r "$subdir" ]; then
+
+		# Usamos este ciclo para percorrer todos os subdiretórios de $subdir e verificar se têm permissão de leitura
+		# Caso contrário é definido o valor da variável $permission como false e saímos do ciclo
+		while read -r subdir_2; do
+		    permission="true"
+		    if [ ! -r "$subdir_2" ]; then
+		        permission="false"
+		        break
+		    fi
+		done < <(find "$subdir" -type d 2>/dev/null)
+
+
+
+		if [ "$permission" = "true" ]; then
 	
 			dir_size="0"	# Inicialmente definimos o tamanho do $subdir com 0
 			
@@ -244,6 +257,6 @@ print_head "$@"
 
 for dir in "${directories[@]}"; do
 	print_output "$dir"
-done | sort $sort | if [ "$option_l" = true ]; then head -n "$limit" 2>/dev/null; else cat; fi 
+done | sort $sort | if [ "$option_l" = true ]; then head -n "$limit" 2>/dev/null; else cat; fi
 
 
