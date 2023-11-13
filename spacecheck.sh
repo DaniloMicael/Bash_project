@@ -70,7 +70,7 @@ function print_output() {
 			dir_size="0"	# Inicialmente definimos o tamanho do $subdir com 0
 			
 			# Usamos esta estrutura condicional para encontrar (find) em $subdir ("$subdir") todos os ficheiros (-type f) com a expressão desejada (-regex "$file_pattern")
-	        # E caso exista algum erro, para não aparecerem mensagens no output, visto que já estamos a lidar com elas, redirecionamo-las e descartamo-las
+	        	# E caso exista algum erro, para não aparecerem mensagens no output, visto que já estamos a lidar com elas, redirecionamo-las e descartamo-las
 			if [ "$option_n" = true ]; then
 				files=$(find "$subdir" -type f -regex "$file_pattern" 2>/dev/null)
 			else
