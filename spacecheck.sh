@@ -70,7 +70,7 @@ function print_output() {
 			dir_size="0"	# Inicialmente definimos o tamanho do $subdir com 0
 			
 			# Usamos esta estrutura condicional para encontrar (find) em $subdir ("$subdir") todos os ficheiros (-type f) com a expressão desejada (-regex "$file_pattern")
-	        	# E caso exista algum erro, para não aparecerem mensagens no output, visto que já estamos a lidar com elas, redirecionamo-las e descartamo-las
+	        # E caso exista algum erro, para não aparecerem mensagens no output, visto que já estamos a lidar com elas, redirecionamo-las e descartamo-las
 			if [ "$option_n" = true ]; then
 				files=$(find "$subdir" -type f -regex "$file_pattern" 2>/dev/null)
 			else
@@ -82,44 +82,40 @@ function print_output() {
 			
 				# Em seguida percorremos um a um os ficheiros filtrados (ou não filtrados, caso não tenha sido usada a opção "-n") em $files
 				while read -r file; do
-					if [ -r "$file" ]; then # verifica se o ficheiro tem permissão de leitura
+					
 
-						file_size=$(stat -c "%s" "$file") # Obtemos o tamanho do ficheiro em bytes
+					file_size=$(stat -c "%s" "$file") # Obtemos o tamanho do ficheiro em bytes
+					
+					if [ $? -ne 0 ]; then # se o comando stat falhar é definido dir_size como NA e saímos do ciclo
+						dir_size="NA"
+						break
+					fi
 
-						if [ $? -ne 0 ]; then # se o comando stat falhar é definido dir_size como NA e saímos do ciclo
-							dir_size="NA"
-							break
-						fi
+					# Na seguinte estrutura condicional, caso a opção "-d" tenha sido selecionada, filtramos tanto por data como por tamanho mínimo (este último 
+					#está guardado na variável $size inicializada com 0 fora da função, e caso o user não tenha decidido passar um tamanho mínimo como argumento, 
+					#este é, então, igual a 0); se a opção "-d" não tiver sido usada, então filtramos apenas por tamanho mínimo
+					if [ "$option_d" = true ]; then
 
-						# Na seguinte estrutura condicional, caso a opção "-d" tenha sido selecionada, filtramos tanto por data como por tamanho mínimo (este último 
-						#está guardado na variável $size inicializada com 0 fora da função, e caso o user não tenha decidido passar um tamanho mínimo como argumento, 
-						#este é, então, igual a 0); se a opção "-d" não tiver sido usada, então filtramos apenas por tamanho mínimo
-						if [ "$option_d" = true ]; then
+						fileModTime=$(stat "$file" -c %Y)	  # Obtemos a data da última modificação do file em segundos desde 01/01/1970
+						userDateInSeconds=$(date --date="$date" +%s)	# Usamos $userDateInSeconds para conter a data que o user inseriu, transformada em segundos desde 01/01/1970
 
-							fileModTime=$(stat "$file" -c %Y)	  # Obtemos a data da última modificação do file em segundos desde 01/01/1970
-							userDateInSeconds=$(date --date="$date" +%s)	# Usamos $userDateInSeconds para conter a data que o user inseriu, transformada em segundos desde 01/01/1970
-
-							# Comparamo-la com a data inserida pelo user, também em segundos desde 01/01/1970 e, se for menor ou igual (data máxima da última modificação), 
-							#então consideramos este ficheiro, caso contrário, descartamo-lo
-							if (($fileModTime <= $userDateInSeconds)); then 
-								# Comparamos o seu tamanho com o tamanho mínimo desejado, e se for maior, continuamos a considerá-lo, caso contrário, descartamo-lo
-								if [ $file_size -ge $size ]; then
-									# Se a condição acima for verdadeira, adicionamos o tamanho do ficheiro ao tamanho do diretório (tamanho a considerar no final)
-									dir_size=$(($dir_size + $file_size))
-								fi
-							fi
-						else
+						# Comparamo-la com a data inserida pelo user, também em segundos desde 01/01/1970 e, se for menor ou igual (data máxima da última modificação), 
+						#então consideramos este ficheiro, caso contrário, descartamo-lo
+						if (($fileModTime <= $userDateInSeconds)); then 
+							# Comparamos o seu tamanho com o tamanho mínimo desejado, e se for maior, continuamos a considerá-lo, caso contrário, descartamo-lo
 							if [ $file_size -ge $size ]; then
-								# Se a condição acima for verdadeira e não tenha sido selecionada a opção "-d", adicionamos o tamanho do ficheiro ao tamanho 
-								#do diretório (tamanho a considerar no final)
+								# Se a condição acima for verdadeira, adicionamos o tamanho do ficheiro ao tamanho do diretório (tamanho a considerar no final)
 								dir_size=$(($dir_size + $file_size))
 							fi
 						fi
 					else
-						# Se o aficheiro não puder ser lido, é definido dir_size como "NA" e é utilizado 'break' para sair do ciclo
-						dir_size="NA"
-						break
+						if [ $file_size -ge $size ]; then
+							# Se a condição acima for verdadeira e não tenha sido selecionada a opção "-d", adicionamos o tamanho do ficheiro ao tamanho 
+							#do diretório (tamanho a considerar no final)
+							dir_size=$(($dir_size + $file_size))
+						fi
 					fi
+			
 				done <<< "$files"	# Aqui, enquanto os ficheiros em $files não tiverem sido todos percorridos, mantém-se o loop em execução na variável $files
 			fi
 			# Por fim, imprimimos o tamanho final de cada subdiretório seguido do seu nome
